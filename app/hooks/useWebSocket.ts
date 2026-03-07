@@ -28,7 +28,18 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
     const connect = useCallback(() => {
         manuallyDisconnectedRef.current = false;
-        const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000/ws';
+        const configuredWsUrl = process.env.NEXT_PUBLIC_WS_URL?.trim();
+        const wsUrl =
+            configuredWsUrl ||
+            (process.env.NODE_ENV === 'production' ? '' : 'ws://localhost:4000/ws');
+
+        if (!wsUrl) {
+            console.error(
+                '[WS] Production WebSocket URL is not configured. Set NEXT_PUBLIC_WS_URL in Vercel and redeploy.'
+            );
+            setConnected(false);
+            return;
+        }
 
         try {
             const ws = new WebSocket(wsUrl);

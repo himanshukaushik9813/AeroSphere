@@ -13,7 +13,17 @@ import type {
     LocationSuggestion,
 } from '../types/weather';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const configuredApiBase = process.env.NEXT_PUBLIC_API_URL?.trim();
+const isProduction = process.env.NODE_ENV === 'production';
+const API_BASE = configuredApiBase || (isProduction ? '' : 'http://localhost:4000/api');
+
+function assertApiConfigured() {
+    if (!API_BASE) {
+        throw new Error(
+            'Production API is not configured. Set NEXT_PUBLIC_API_URL in Vercel Project Settings and redeploy.'
+        );
+    }
+}
 
 const api = axios.create({
     baseURL: API_BASE,
@@ -25,8 +35,9 @@ const api = axios.create({
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        const networkHint =
-            `Network error. Ensure backend is running at ${API_BASE} and backend CORS allows your frontend origin.`;
+        const networkHint = API_BASE
+            ? `Network error. Ensure backend is running at ${API_BASE} and backend CORS allows your frontend origin.`
+            : 'Network error. Set NEXT_PUBLIC_API_URL in Vercel Project Settings and redeploy.';
         const message =
             error.response?.data?.error ||
             (error.message === 'Network Error' ? networkHint : error.message) ||
@@ -37,6 +48,7 @@ api.interceptors.response.use(
 );
 
 export async function fetchCurrentWeather(lat: number, lon: number): Promise<CurrentWeather> {
+    assertApiConfigured();
     const { data } = await api.get<ApiResponse<CurrentWeather>>('/weather', {
         params: { lat, lon },
     });
@@ -47,6 +59,7 @@ export async function fetchLocationSuggestions(
     query: string,
     limit = 6
 ): Promise<LocationSuggestion[]> {
+    assertApiConfigured();
     const { data } = await api.get<ApiResponse<LocationSuggestion[]>>('/locations/search', {
         params: { q: query, limit },
     });
@@ -54,6 +67,7 @@ export async function fetchLocationSuggestions(
 }
 
 export async function fetchForecast(lat: number, lon: number): Promise<ForecastData> {
+    assertApiConfigured();
     const { data } = await api.get<ApiResponse<ForecastData>>('/forecast', {
         params: { lat, lon },
     });
@@ -61,6 +75,7 @@ export async function fetchForecast(lat: number, lon: number): Promise<ForecastD
 }
 
 export async function fetchAQI(lat: number, lon: number): Promise<AQIData> {
+    assertApiConfigured();
     const { data } = await api.get<ApiResponse<AQIData>>('/aqi', {
         params: { lat, lon },
     });
@@ -68,6 +83,7 @@ export async function fetchAQI(lat: number, lon: number): Promise<AQIData> {
 }
 
 export async function fetchAlerts(lat: number, lon: number): Promise<AlertsData> {
+    assertApiConfigured();
     const { data } = await api.get<ApiResponse<AlertsData>>('/alerts', {
         params: { lat, lon },
     });
@@ -80,6 +96,7 @@ export async function fetchRainPrediction(
     temperature?: number,
     cloudCover?: number
 ): Promise<RainPrediction> {
+    assertApiConfigured();
     const { data } = await api.get<ApiResponse<RainPrediction>>('/rain-prediction', {
         params: { humidity, pressure, temperature, cloudCover },
     });
@@ -87,6 +104,7 @@ export async function fetchRainPrediction(
 }
 
 export async function fetchMonsoonData(): Promise<MonsoonData> {
+    assertApiConfigured();
     const { data } = await api.get<ApiResponse<MonsoonData>>('/monsoon');
     return data.data;
 }

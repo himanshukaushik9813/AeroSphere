@@ -31,12 +31,13 @@ Use this flow for fastest deployment.
 4. Add environment variables:
    - `NEXT_PUBLIC_API_URL=https://aerosphere-backend.onrender.com/api`
    - `NEXT_PUBLIC_WS_URL=wss://aerosphere-backend.onrender.com/ws`
+   - Important: these are build-time vars in Vercel; set them before deploy and redeploy whenever changed.
 5. Deploy and copy frontend URL, for example:
    - `https://aerosphere.vercel.app`
 
 ## 3) Final CORS/WS hookup
 
-Update backend env `FRONTEND_URLS` to include your real frontend domain:
+Update backend env `FRONTEND_URLS` to include your real frontend domain (and keep localhost for local testing):
 
 `FRONTEND_URLS=https://aerosphere.vercel.app,http://localhost:3000,http://localhost:3001`
 
