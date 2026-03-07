@@ -25,6 +25,9 @@ export default function DashboardNavbar({ connected, lastUpdate, onLocateMe, loc
     const [searchOpen, setSearchOpen] = useState(false);
     const [activeLink, setActiveLink] = useState('#dashboard');
     const [time, setTime] = useState('');
+    const lastUpdateLabel = lastUpdate
+        ? new Date(lastUpdate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
+        : null;
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 30);
@@ -126,6 +129,11 @@ export default function DashboardNavbar({ connected, lastUpdate, onLocateMe, loc
                                 <span className="text-[11px] text-text-muted font-mono uppercase tracking-wider font-medium">
                                     {connected ? 'Live' : 'Offline'}
                                 </span>
+                                {lastUpdateLabel && (
+                                    <span className="text-[11px] text-text-muted/70 font-mono">
+                                        {lastUpdateLabel}
+                                    </span>
+                                )}
                             </motion.div>
 
                             {/* My Location button */}
