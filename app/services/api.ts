@@ -35,9 +35,7 @@ const api = axios.create({
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        const networkHint = API_BASE
-            ? `Network error. Ensure backend is running at ${API_BASE} and backend CORS allows your frontend origin.`
-            : 'Network error. Set NEXT_PUBLIC_API_URL in Vercel Project Settings and redeploy.';
+        const networkHint = 'Live weather data is temporarily unavailable.';
         const message =
             error.response?.data?.error ||
             (error.message === 'Network Error' ? networkHint : error.message) ||

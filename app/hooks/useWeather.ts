@@ -84,10 +84,24 @@ export function useWeather() {
                 error: null,
             }));
         } catch (err) {
+            const message = err instanceof Error ? err.message : 'Failed to fetch weather data';
+            const isConnectivityIssue =
+                /network|cors|temporarily unavailable|not configured/i.test(message);
+
+            if (isConnectivityIssue) {
+                // Keep the UI calm for transient infra issues; panel falls back to neutral state.
+                setState((prev) => ({
+                    ...prev,
+                    loading: false,
+                    error: null,
+                }));
+                return;
+            }
+
             setState((prev) => ({
                 ...prev,
                 loading: false,
-                error: err instanceof Error ? err.message : 'Failed to fetch weather data',
+                error: message,
             }));
         }
     }, []);
