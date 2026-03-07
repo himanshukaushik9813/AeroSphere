@@ -2,27 +2,27 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 
-const geistSans = localFont({
+const inter = localFont({
   src: './fonts/GeistVF.woff',
-  variable: '--font-geist',
-  weight: '100 900',
+  variable: '--font-inter',
+  display: 'swap',
 });
 
-const geistMono = localFont({
+const spaceGrotesk = localFont({
   src: './fonts/GeistMonoVF.woff',
-  variable: '--font-geist-mono',
-  weight: '100 900',
+  variable: '--font-space-grotesk',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'AeroSphere - Global Weather Visualization',
+  title: 'AeroSphere — Next-Gen Cloud Infrastructure Platform',
   description:
-    'Futuristic real-time global weather visualization dashboard powered by an interactive 3D globe and live weather APIs.',
-  keywords: ['weather', 'globe', '3D', 'visualization', 'forecast', 'AQI', 'monsoon'],
+    'AeroSphere delivers cutting-edge cloud infrastructure with real-time analytics, AI-powered insights, and enterprise-grade security for modern teams.',
+  keywords: ['cloud', 'infrastructure', 'analytics', 'AI', 'platform', 'enterprise', 'AeroSphere'],
   authors: [{ name: 'Himanshu Kaushik' }],
   openGraph: {
-    title: 'AeroSphere - Global Weather Visualization',
-    description: 'Real-time weather on an interactive 3D globe',
+    title: 'AeroSphere — Next-Gen Cloud Infrastructure Platform',
+    description: 'Cutting-edge cloud infrastructure with real-time analytics and AI-powered insights.',
     type: 'website',
   },
 };
@@ -33,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="antialiased">
+    <html lang="en" className={`${inter.variable} ${spaceGrotesk.variable}`}>
+      <body className="antialiased bg-bg-primary">
         {children}
       </body>
     </html>

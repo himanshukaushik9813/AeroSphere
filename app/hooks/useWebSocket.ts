@@ -21,10 +21,13 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     const { onWeatherUpdate, reconnectInterval = 5000 } = options;
     const wsRef = useRef<WebSocket | null>(null);
     const reconnectTimerRef = useRef<NodeJS.Timeout>();
+    const manuallyDisconnectedRef = useRef(false);
+    const lastSubscriptionRef = useRef<{ lat: number; lon: number } | null>(null);
     const [connected, setConnected] = useState(false);
     const [lastUpdate, setLastUpdate] = useState<number | null>(null);
 
     const connect = useCallback(() => {
+        manuallyDisconnectedRef.current = false;
         const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:4000/ws';
 
         try {
@@ -34,6 +37,15 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
             ws.onopen = () => {
                 console.log('[WS] Connected');
                 setConnected(true);
+
+                if (lastSubscriptionRef.current) {
+                    ws.send(
+                        JSON.stringify({
+                            type: 'subscribe',
+                            ...lastSubscriptionRef.current,
+                        })
+                    );
+                }
             };
 
             ws.onmessage = (event) => {
@@ -52,10 +64,13 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
             ws.onclose = () => {
                 console.log('[WS] Disconnected');
                 setConnected(false);
-                // Auto reconnect
-                reconnectTimerRef.current = setTimeout(() => {
-                    connect();
-                }, reconnectInterval);
+                wsRef.current = null;
+
+                if (!manuallyDisconnectedRef.current) {
+                    reconnectTimerRef.current = setTimeout(() => {
+                        connect();
+                    }, reconnectInterval);
+                }
             };
 
             ws.onerror = (err) => {
@@ -69,6 +84,8 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     }, [onWeatherUpdate, reconnectInterval]);
 
     const subscribe = useCallback((lat: number, lon: number) => {
+        lastSubscriptionRef.current = { lat, lon };
+
         if (wsRef.current?.readyState === WebSocket.OPEN) {
             wsRef.current.send(
                 JSON.stringify({ type: 'subscribe', lat, lon })
@@ -77,12 +94,15 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     }, []);
 
     const unsubscribe = useCallback(() => {
+        lastSubscriptionRef.current = null;
+
         if (wsRef.current?.readyState === WebSocket.OPEN) {
             wsRef.current.send(JSON.stringify({ type: 'unsubscribe' }));
         }
     }, []);
 
     const disconnect = useCallback(() => {
+        manuallyDisconnectedRef.current = true;
         if (reconnectTimerRef.current) {
             clearTimeout(reconnectTimerRef.current);
         }

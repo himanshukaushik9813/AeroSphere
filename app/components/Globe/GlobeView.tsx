@@ -9,7 +9,6 @@ import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ViewMode, GlobePoint, MonsoonCityData } from '../../types/weather';
 import { tempToColor } from '../../utils/helpers';
-import GeoTextNebula from '../UI/GeoTextNebula';
 
 // Dynamically import Globe to avoid SSR issues with Three.js
 const Globe = dynamic(() => import('react-globe.gl'), { ssr: false });
@@ -54,6 +53,16 @@ const STORM_POINTS: GlobePoint[] = [
     { lat: 23.81, lng: 90.41, value: 1, label: 'Dhaka - Cyclone Zone', color: '#ef4444' },
     { lat: 19.07, lng: 72.88, value: 1, label: 'Mumbai - Cyclone Zone', color: '#f97316' },
     { lat: 29.95, lng: -90.07, value: 1, label: 'New Orleans - Hurricane Zone', color: '#ef4444' },
+];
+
+const AQI_POINTS: GlobePoint[] = [
+    { lat: 28.61, lng: 77.21, value: 4, label: 'Delhi - Poor AQI', color: '#f97316' },
+    { lat: 19.07, lng: 72.88, value: 3, label: 'Mumbai - Moderate AQI', color: '#facc15' },
+    { lat: 39.91, lng: 116.40, value: 4, label: 'Beijing - Poor AQI', color: '#f97316' },
+    { lat: 34.05, lng: -118.24, value: 2, label: 'Los Angeles - Fair AQI', color: '#a3e635' },
+    { lat: 51.51, lng: -0.13, value: 2, label: 'London - Fair AQI', color: '#a3e635' },
+    { lat: 30.04, lng: 31.24, value: 5, label: 'Cairo - Very Poor AQI', color: '#ef4444' },
+    { lat: 1.35, lng: 103.82, value: 1, label: 'Singapore - Good AQI', color: '#22c55e' },
 ];
 
 export default function GlobeView({
@@ -101,6 +110,11 @@ export default function GlobeView({
                 return STORM_POINTS.map((p) => ({
                     ...p,
                     size: 0.8,
+                }));
+            case 'aqi':
+                return AQI_POINTS.map((p) => ({
+                    ...p,
+                    size: 0.75,
                 }));
             case 'monsoon':
                 return monsoonCities.map((city) => ({
@@ -244,8 +258,6 @@ export default function GlobeView({
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            <GeoTextNebula />
 
             {/* Click hint */}
             {!selectedCoords && (

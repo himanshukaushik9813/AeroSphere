@@ -13,12 +13,14 @@ const { initWebSocket } = require('./websocket/wsServer');
 
 const app = express();
 const allowedOrigins = new Set(config.frontendUrls);
+const isLocalhostOrigin = (origin) =>
+    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
 
 // Middleware
 app.use(cors({
     origin(origin, callback) {
         // Allow non-browser requests (no Origin header).
-        if (!origin || allowedOrigins.has(origin)) {
+        if (!origin || allowedOrigins.has(origin) || isLocalhostOrigin(origin)) {
             return callback(null, true);
         }
         return callback(new Error(`CORS blocked for origin: ${origin}`));
